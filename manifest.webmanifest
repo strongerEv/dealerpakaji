@@ -1,0 +1,14 @@
+{
+  "name": "Dealer Pak Aji",
+  "short_name": "Pak Aji",
+  "description": "Katalog mobil, simulasi kredit, dan booking test drive Dealer Pak Aji.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6fa",
+  "theme_color": "#0f2a4a",
+  "lang": "id",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

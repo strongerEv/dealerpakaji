@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0f2a4a"/>
+  <path d="M12 38l4-10a4 4 0 0 1 3.7-2.6h24.6A4 4 0 0 1 48 28l4 10v8a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-2H19v2a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2z" fill="#f5a524"/>
+  <path d="M18.5 36l2.6-6.4a1.5 1.5 0 0 1 1.4-.9h19a1.5 1.5 0 0 1 1.4.9l2.6 6.4z" fill="#0f2a4a"/>
+  <circle cx="19" cy="41" r="2.5" fill="#0f2a4a"/>
+  <circle cx="45" cy="41" r="2.5" fill="#0f2a4a"/>
+  <text x="32" y="20" text-anchor="middle" font-family="Arial, sans-serif" font-weight="800" font-size="11" fill="#fff">PAK AJI</text>
+</svg>
