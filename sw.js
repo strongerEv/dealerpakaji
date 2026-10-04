@@ -1,8 +1,9 @@
 // Service worker: simpan aset agar aplikasi tetap bisa dibuka saat offline.
-const CACHE = 'dpa-v1';
+const CACHE = 'dpa-v2';
 const ASSETS = [
   './', 'index.html', 'css/style.css', 'js/data.js', 'js/store.js', 'js/app.js', 'js/admin.js',
-  'manifest.webmanifest', 'assets/icon.svg',
+  'manifest.webmanifest', 'assets/icon-192.png', 'assets/emblem.png', 'assets/logo.png', 'assets/logo-light.png',
+  'assets/hero.webp', 'assets/hero-sm.webp',
   'assets/cars/toyota-raize.webp', 'assets/cars/chery-c5.webp', 'assets/cars/hyundai-creta.webp',
   'assets/cars/mitsubishi-xpander-cross.webp', 'assets/cars/suzuki-xl7.png', 'assets/cars/toyota-alphard.jpg',
   'assets/cars/daihatsu-luxio.jpg', 'assets/cars/daihatsu-granmax.webp', 'assets/cars/toyota-innova.jpg',

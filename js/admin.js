@@ -4,6 +4,7 @@
   const AUTH_KEY = 'dpa_admin';
   const STATUSES = ['Tersedia', 'Inden', 'Booking', 'Terjual'];
   const LEAD_STATUSES = ['Baru', 'Dihubungi', 'Deal', 'Batal'];
+  const LEAD_TYPES = ['Test Drive', 'Kredit', 'Pertanyaan', 'Jual Mobil', 'Tukar Tambah'];
   const TABS = [['dashboard', 'Dashboard'], ['stok', 'Stok Mobil'], ['prospek', 'Prospek'], ['pengaturan', 'Pengaturan']];
 
   const isAuthed = () => sessionStorage.getItem(AUTH_KEY) === '1';
@@ -22,7 +23,7 @@
   function loginView() {
     return `
       <div class="login card pad">
-        <img src="assets/icon.svg" alt="" width="56" height="56">
+        <img src="assets/logo.png" alt="Dealer Pak Aji" width="200" height="138">
         <h1>Masuk Admin</h1>
         <p class="muted">Masukkan PIN untuk mengelola stok dan prospek.</p>
         <form id="loginForm" class="form">
@@ -42,7 +43,7 @@
     const sold = cars.filter((c) => c.status === 'Terjual');
     const newLeads = leads.filter((l) => l.status === 'Baru');
     const deals = leads.filter((l) => l.status === 'Deal');
-    const byType = ['Test Drive', 'Kredit', 'Pertanyaan', 'Tukar Tambah'].map((t) => [t, leads.filter((l) => l.type === t).length]);
+    const byType = LEAD_TYPES.map((t) => [t, leads.filter((l) => l.type === t).length]);
     const maxType = Math.max(1, ...byType.map(([, n]) => n));
     const byBrand = [...new Set(avail.map((c) => c.brand))].map((b) => [b, avail.filter((c) => c.brand === b).length]).sort((a, b) => b[1] - a[1]);
     const maxBrand = Math.max(1, ...byBrand.map(([, n]) => n));
@@ -100,7 +101,7 @@
 
   function carForm(c) {
     const isNew = !c;
-    c = c || { brand: '', model: '', variant: '', year: new Date().getFullYear(), type: 'MPV', condition: 'Baru', status: 'Tersedia', price: '', transmission: 'AT', fuel: 'Bensin', engine: '', seats: 7, km: 0, color: '', image: '', featured: false, features: [], description: '' };
+    c = c || { brand: '', model: '', variant: '', year: new Date().getFullYear(), type: 'MPV', condition: 'Bekas', status: 'Tersedia', price: '', transmission: 'AT', fuel: 'Bensin', engine: '', seats: 7, km: 0, color: '', image: '', featured: false, features: [], description: '' };
     const sel = (name, opts) => `<select name="${name}">${opts.map((o) => `<option ${String(o) === String(c[name]) ? 'selected' : ''}>${o}</option>`).join('')}</select>`;
     openModal(`
       <h2 id="modalTitle">${isNew ? 'Tambah Mobil' : 'Edit Mobil'}</h2>
@@ -216,13 +217,13 @@
     const detail = (l) => [
       l.date ? `📅 ${esc(l.date)} ${esc(l.time || '')} · ${esc(l.location || '')}` : '',
       l.credit ? `💳 DP ${rupiah(l.credit.dp)} · ${esc(l.credit.tenor)} th · ${rupiah(l.credit.monthly)}/bln` : '',
-      l.tradeCar ? `🔁 ${esc(l.tradeCar)}${l.tradeKm ? ' · ' + esc(l.tradeKm) + ' km' : ''}` : '',
+      l.tradeCar ? `🔁 ${esc(l.tradeCar)}${l.tradeYear ? ' ' + esc(l.tradeYear) : ''}${l.tradeKm ? ' · ' + Number(l.tradeKm).toLocaleString('id-ID') + ' km' : ''}${l.tradeTrans ? ' · ' + esc(l.tradeTrans) : ''}${l.tradePrice ? ' · harapan ' + rupiah(l.tradePrice) : ''}` : '',
       l.note ? `📝 ${esc(l.note)}` : '',
     ].filter(Boolean).map((s) => `<p>${s}</p>`).join('');
     return `
       <div class="toolbar">
         <select class="input" id="leadStatus" aria-label="Filter status"><option value="">Semua status (${all.length})</option>${LEAD_STATUSES.map((s) => `<option ${s === params.status ? 'selected' : ''}>${s}</option>`).join('')}</select>
-        <select class="input" id="leadType" aria-label="Filter jenis"><option value="">Semua jenis</option>${['Test Drive', 'Kredit', 'Pertanyaan', 'Tukar Tambah'].map((s) => `<option ${s === params.type ? 'selected' : ''}>${s}</option>`).join('')}</select>
+        <select class="input" id="leadType" aria-label="Filter jenis"><option value="">Semua jenis</option>${LEAD_TYPES.map((s) => `<option ${s === params.type ? 'selected' : ''}>${s}</option>`).join('')}</select>
         <button class="btn btn-ghost" id="exportCsv" ${all.length ? '' : 'disabled'}>Export CSV</button>
       </div>
       <div class="lead-list">${leads.map((l) => `
@@ -243,7 +244,7 @@
   }
 
   function exportCsv() {
-    const cols = ['createdAt', 'type', 'status', 'name', 'phone', 'carName', 'date', 'time', 'location', 'tradeCar', 'tradeKm', 'note'];
+    const cols = ['createdAt', 'type', 'status', 'name', 'phone', 'carName', 'date', 'time', 'location', 'tradeCar', 'tradeYear', 'tradeKm', 'tradeTrans', 'tradePrice', 'note'];
     const rows = Store.leads().map((l) => [...cols.map((k) => l[k] ?? ''), l.credit ? `DP ${l.credit.dp} / ${l.credit.tenor} th / ${l.credit.monthly}` : '']);
     const csv = [[...cols, 'credit'], ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
     download(`prospek-dealer-pak-aji-${new Date().toISOString().slice(0, 10)}.csv`, '﻿' + csv, 'text/csv');
@@ -273,7 +274,11 @@
           </div>
           ${field('email', 'Email', 'type="email"')}
           ${field('address', 'Alamat')}
-          ${field('hours', 'Jam buka')}
+          ${field('hours', 'Jam operasional (pisahkan dengan ;)')}
+          <div class="form-row">
+            ${field('instagram', 'Instagram (username)')}
+            ${field('facebook', 'Facebook (username/URL)')}
+          </div>
           <button class="btn btn-primary">Simpan profil</button>
         </form>
         <div class="stack">
@@ -297,17 +302,18 @@
 
   // ---------- Route ----------
   routes.admin = (params) => {
-    if (!isAuthed()) return loginView();
+    if (!isAuthed()) return `<div class="container admin-wrap">${loginView()}</div>`;
     const tab = TABS.some(([k]) => k === params.tab) ? params.tab : 'dashboard';
     const content = { dashboard, stok: stock, prospek: prospects, pengaturan: settingsView }[tab](params);
     const newCount = Store.leads().filter((l) => l.status === 'Baru').length;
-    return `
+    return `<div class="container admin-wrap">
       <div class="admin-head">
         <div><h1>Panel Admin</h1><p class="muted">${esc(Store.settings().dealerName)}</p></div>
         <button class="btn btn-ghost btn-sm" id="logout">Keluar</button>
       </div>
       <nav class="tabs" aria-label="Menu admin">${TABS.map(([k, label]) => `<a href="#/admin?tab=${k}" class="${k === tab ? 'active' : ''}">${label}${k === 'prospek' && newCount ? ` <span class="badge">${newCount}</span>` : ''}</a>`).join('')}</nav>
-      <div class="admin-body">${content}</div>`;
+      <div class="admin-body">${content}</div>
+    </div>`;
   };
 
   routes.admin.mount = (params) => {
